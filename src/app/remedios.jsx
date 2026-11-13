@@ -22,6 +22,7 @@ export default function RemediosScreen() {
 
   return (
     <SafeAreaView style={remediosCaseros.safeArea} edges={["top"]}>
+      {/* AppBar Superior en modo volver */}
       <AppBarSuperior
           tipo=" "
           nombre=""
@@ -29,11 +30,13 @@ export default function RemediosScreen() {
        />
 
       <ScrollView contentContainerStyle={remediosCaseros.container} showsVerticalScrollIndicator={false}>
+        {/* Encabezado */}
         <View style={remediosCaseros.headerContainer}>
           <Text style={remediosCaseros.titulo}>Remedios caseros</Text>
           <Text style={remediosCaseros.subtitulo}>Para tu cuerpo: elige qué necesitas</Text>
         </View>
 
+        {/* Chips de Filtro */}
         <View style={remediosCaseros.filtrosContainer}>
           {filtros.map((filtro) => {
             const activo = filtroSeleccionado === filtro.id;
@@ -59,6 +62,7 @@ export default function RemediosScreen() {
           })}
         </View>
 
+        {/* Lista de Recetas / Remedios */}
         <View style={remediosCaseros.listaRecetas}>
           <Receta
             titulo="Jarabe de limón, miel y jengibre"

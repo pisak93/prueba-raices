@@ -1,18 +1,122 @@
-import { Stack, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { useState } from "react";
+import { Stack } from "expo-router";
+// 1. Quitamos ScrollView e importamos FlatList
+import { Text, View, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { explorarRecetas, remediosCaseros } from "../Stylesheet";
-import BarraNavegacion from "./BarraNavegacion";
-import Filtro from "./Filtro";
 import Receta from "./Receta";
+import Filtro from "./Filtro";
 import TextInput from "./TextInput";
+import BarraNavegacion from "./BarraNavegacion";
+import { explorarRecetas, remediosCaseros } from "../Stylesheet";
 
-import api from "../api/axios";
+const recetas = [
+  {
+    titulo: "Aromática de manzanilla y hierbabuena",
+    categoria: "Aromáticas",
+    beneficio: "Digestión",
+    tiempo: "10 min",
+    guardada: true,
+  },
+  {
+    titulo: "Jarabe de limón, miel y jengibre",
+    categoria: "Remedios",
+    beneficio: "Tos",
+    tiempo: "10 min",
+  },
+  {
+    titulo: "Batido verde de espinaca y pepino",
+    categoria: "Batidos",
+    beneficio: "Energía",
+    tiempo: "5 min",
+  },
+  {
+    titulo: "Jugo de mora",
+    categoria: "Jugos",
+    beneficio: "Defensas",
+    tiempo: "5 min",
+    guardada: true,
+  },
+  {
+    titulo: "Aromática de toronjil",
+    categoria: "Aromáticas",
+    beneficio: "Dormir",
+    tiempo: "10 min",
+    faltante: "Toronjil",
+  },
+  {
+    titulo: "Batido de banano y mora",
+    categoria: "Batidos",
+    beneficio: "Defensas",
+    tiempo: "5 min",
+  },
+  {
+    titulo: "Batido de fresa y banano",
+    categoria: "Batidos",
+    beneficio: "Energía",
+    tiempo: "5 min",
+    faltante: "Fresa",
+  },
+  {
+    titulo: "Batido de mango y jengibre",
+    categoria: "Batidos",
+    beneficio: "Digestión",
+    tiempo: "5 min",
+    faltante: "Mango",
+  },
+  {
+    titulo: "Limonada de hierbabuena",
+    categoria: "Jugos",
+    beneficio: "Refresca",
+    tiempo: "5 min",
+    ingredientes: "limón",
+  },
+  {
+    titulo: "Jugo de pepino y limón",
+    categoria: "Jugos",
+    beneficio: "Hidrata",
+    tiempo: "5 min",
+  },
+  {
+    titulo: "Jugo de naranja y zanahoria",
+    categoria: "Jugos",
+    beneficio: "Vista y defensas",
+    tiempo: "5 min",
+    faltante: "Naranja",
+  },
+  {
+    titulo: "Limoncillo con jengibre",
+    categoria: "Aromáticas",
+    beneficio: "Gripa",
+    tiempo: "15 min",
+  },
+  {
+    titulo: "Hierbabuena con limón",
+    categoria: "Aromáticas",
+    beneficio: "Refrescante",
+    tiempo: "10 min",
+  },
+  {
+    titulo: "Té de romero",
+    categoria: "Aromáticas",
+    beneficio: "Circulación",
+    tiempo: "10 min",
+  },
+  {
+    titulo: "Vapor de hierbabuena",
+    categoria: "Remedios",
+    beneficio: "Nariz tapada",
+    tiempo: "10 min",
+  },
+  {
+    titulo: "Manzanilla tibia",
+    categoria: "Remedios",
+    beneficio: "Digestión",
+    tiempo: "10 min",
+  },
+];
 
 function normalizar(texto) {
-  if (!texto) return "";
   return texto
     .trim()
     .toLowerCase()
@@ -29,36 +133,19 @@ export default function ExplorarRecetas({
 }) {
   const [busqueda, setBusqueda] = useState(busquedaInicial);
   const [filtro, setFiltro] = useState(filtroInicial);
-  const [recetas, setRecetas] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const router = useRouter();
-
-  useEffect(function () {
-    async function traerRecetas() {
-      try {
-        const response = await api.get("/Recetas?select=*&order=id");
-        setRecetas(response.data);
-      } catch (error) {
-        console.error("Error al obtener recetas:", error);
-      } finally {
-        setCargando(false);
-      }
-    }
-    traerRecetas();
-  }, []);
 
   const esCatalogo = !categoria;
   const consulta = normalizar(busqueda);
 
   const visibles = recetas.filter((item) => {
-    if (categoria && item.Categoria !== categoria) return false;
+    if (categoria && item.categoria !== categoria) return false;
     if (filtro === "Guardadas" && !item.guardada) return false;
-    if (filtro === "Aromáticas" && item.Categoria !== "Aromáticas") return false;
+    if (filtro === "Aromáticas" && item.categoria !== "Aromáticas") return false;
 
     const texto = [
-      item.Nombre,
-      item.Categoria,
-      item.Propiedad,
+      item.titulo,
+      item.categoria,
+      item.beneficio,
       item.ingredientes || "",
     ].join(" ");
 
@@ -78,7 +165,8 @@ export default function ExplorarRecetas({
         contentContainerStyle={explorarRecetas.container}
         keyboardShouldPersistTaps="handled"
         data={visibles}
-        keyExtractor={(item) => String(item.id)}
+        keyExtractor={(item) => item.titulo}
+        /* ListHeaderComponent reemplaza todo lo que iba antes de la lista de recetas */
         ListHeaderComponent={
           <>
             <View style={explorarRecetas.headerContainer}>
@@ -95,6 +183,7 @@ export default function ExplorarRecetas({
                 />
 
                 <View style={remediosCaseros.filtrosContainer}>
+                  {/* 2. Filtros creados manualmente sin usar .map */}
                   <Filtro
                     texto="Todas"
                     activo={filtro === "Todas"}
@@ -126,45 +215,31 @@ export default function ExplorarRecetas({
             )}
           </>
         }
+        /* renderItem reemplaza la función del .map */
         renderItem={({ item }) => (
-  <View style={explorarRecetas.listaRecetas}>
-    <Receta
-      titulo={item.Nombre}
-      beneficio={
-        esCatalogo
-          ? item.Categoria + " · " + item.Propiedad
-          : item.Propiedad
-      }
-      tiempo={item.Tiempo}
-      faltante={item.faltante}
-      imagen={item.Imagen || item.imagen}
-      onPress={() =>
-        router.push({
-          pathname: "/detalle-receta",
-          params: {
-            id: item.id,
-            nombre: item.Nombre,
-            tiempo: item.Tiempo,
-            imagen: item.Imagen || item.imagen || "",
-            guardada: String(item.guardada),
-          },
-        })
-      }
-    />
-  </View>
-)}
+          <View style={explorarRecetas.listaRecetas}>
+            <Receta
+              titulo={item.titulo}
+              // 3. Reemplazamos los template literals (${}) por la suma de textos con +
+              beneficio={
+                esCatalogo
+                  ? item.categoria + " · " + item.beneficio
+                  : item.beneficio
+              }
+              tiempo={item.tiempo}
+              faltante={item.faltante}
+            />
+          </View>
+        )}
+        /* ListEmptyComponent reemplaza tu validación de "visibles.length === 0" */
         ListEmptyComponent={
-          cargando ? (
-            <Text style={explorarRecetas.subtitulo}>Cargando recetas...</Text>
-          ) : (
-            <View style={explorarRecetas.listaRecetas}>
-              <Text style={explorarRecetas.titulo}>No encontramos recetas</Text>
-              <Text style={explorarRecetas.subtitulo}>
-                Prueba con una planta o fruta de tu huerta, como hierbabuena o limón.
-              </Text>
-              <Filtro texto="Ver todas las recetas" onPress={mostrarTodas} />
-            </View>
-          )
+          <View style={explorarRecetas.listaRecetas}>
+            <Text style={explorarRecetas.titulo}>No encontramos recetas</Text>
+            <Text style={explorarRecetas.subtitulo}>
+              Prueba con una planta o fruta de tu huerta, como hierbabuena o limón.
+            </Text>
+            <Filtro texto="Ver todas las recetas" onPress={mostrarTodas} />
+          </View>
         }
       />
 

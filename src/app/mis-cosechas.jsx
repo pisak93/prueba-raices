@@ -1,5 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
 import {
   Pressable,
   ScrollView,
@@ -11,43 +10,34 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import AppBarSuperior from "../../assets/componentes/AppBarSuperior";
 
-// SUPABASE: cliente configurado con la URL y la API Key
-import api from "../../assets/api/axios";
+const COSECHAS = [
+  {
+    categoria: "Hierbas aromáticas",
+    icono: "🌿",
+    elementos: [
+      "Hierbabuena",
+      "Manzanilla",
+      "Limoncillo",
+    ],
+  },
+  {
+    categoria: "Frutas",
+    icono: "🍋",
+    elementos: [
+      "Limón",
+      "Mora",
+      "Banano",
+    ],
+  },
+];
 
 export default function MisCosechas() {
   const router = useRouter();
-  const [cosechas, setCosechas] = useState([]);
 
-  // ==========================================
-  // ANOTACIÓN SUPABASE: LEER (GET)
-  // Antes: lista COSECHAS escrita a mano. Ahora viene de la tabla "cosechas".
-  // ==========================================
-  useFocusEffect(
-    useCallback(() => {
-      async function traer() {
-        try {
-          const response = await api.get("/cosechas?select=*&en_huerta=eq.true&order=nombre");
-          setCosechas(response.data);
-        } catch (error) {
-          console.error("Error al obtener cosechas:", error);
-        }
-      }
-      traer();
-    }, []),
+  const totalCosechas = COSECHAS.reduce(
+    (total, categoria) => total + categoria.elementos.length,
+    0,
   );
-
-  // Agrupa por categoría para mostrarlas como antes
-  const COSECHAS = [];
-  cosechas.forEach((c) => {
-    let grupo = COSECHAS.find((g) => g.categoria === c.categoria);
-    if (!grupo) {
-      grupo = { categoria: c.categoria, icono: c.icono, elementos: [] };
-      COSECHAS.push(grupo);
-    }
-    grupo.elementos.push(c.nombre);
-  });
-
-  const totalCosechas = cosechas.length;
 
   return (
     <SafeAreaView style={estilos.contenedor} edges={["top"]}>

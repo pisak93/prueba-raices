@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -12,33 +12,36 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import AppBarSuperior from "../../assets/componentes/AppBarSuperior";
 
-// SUPABASE: cliente configurado con la URL y la API Key
-import api from "../../assets/api/axios";
+// Cosechas que ya existen en la huerta
+const COSECHAS_EXISTENTES = [
+  "hierbabuena",
+  "manzanilla",
+  "limoncillo",
+  "limon",
+  "mora",
+  "banano",
+];
+
+// Opciones disponibles
+const COSECHAS = [
+  { id: "hierbabuena", nombre: "Hierbabuena", categoria: "Hierbas aromáticas", icono: "🌿" },
+  { id: "manzanilla", nombre: "Manzanilla", categoria: "Hierbas aromáticas", icono: "🌼" },
+  { id: "limoncillo", nombre: "Limoncillo", categoria: "Hierbas aromáticas", icono: "🌱" },
+  { id: "limon", nombre: "Limón", categoria: "Frutas", icono: "🍋" },
+  { id: "mora", nombre: "Mora", categoria: "Frutas", icono: "🫐" },
+  { id: "banano", nombre: "Banano", categoria: "Frutas", icono: "🍌" },
+  { id: "toronjil", nombre: "Toronjil", categoria: "Hierbas aromáticas", icono: "🌿" },
+  { id: "romero", nombre: "Romero", categoria: "Hierbas aromáticas", icono: "🌱" },
+  { id: "fresa", nombre: "Fresa", categoria: "Frutas", icono: "🍓" },
+  { id: "tomate", nombre: "Tomate", categoria: "Verduras", icono: "🍅" },
+];
 
 export default function AgregarCosecha() {
   const router = useRouter();
   const [nuevas, setNuevas] = useState([]);
-  const [COSECHAS, setCosechas] = useState([]);
-
-  // ==========================================
-  // ANOTACIÓN SUPABASE: LEER (GET)
-  // Trae TODO el catálogo de plantas. Las que tienen en_huerta = true
-  // salen en gris ("ya está en tu huerta").
-  // ==========================================
-  useEffect(function () {
-    async function traer() {
-      try {
-        const response = await api.get("/cosechas?select=*&order=nombre");
-        setCosechas(response.data);
-      } catch (error) {
-        console.error("Error al obtener catálogo:", error);
-      }
-    }
-    traer();
-  }, []);
 
   function tocar(cosecha) {
-    if (cosecha.en_huerta) {
+    if (COSECHAS_EXISTENTES.includes(cosecha.id)) {
       Alert.alert(
         "Ya está en tu huerta",
         `${cosecha.nombre} ya hace parte de tus cosechas.`,
@@ -53,11 +56,7 @@ export default function AgregarCosecha() {
     );
   }
 
-  // ==========================================
-  // ANOTACIÓN SUPABASE: ACTUALIZAR (PATCH)
-  // Marca como en_huerta = true todas las cosechas elegidas (id IN (...)).
-  // ==========================================
-  async function agregar() {
+  function agregar() {
     if (nuevas.length === 0) return;
 
     const nombres = COSECHAS
@@ -65,17 +64,9 @@ export default function AgregarCosecha() {
       .map((c) => c.nombre)
       .join(", ");
 
-    try {
-      await api.patch("/cosechas?id=in.(" + nuevas.join(",") + ")", { en_huerta: true });
-    } catch (error) {
-      console.error("Error al agregar cosechas:", error);
-      Alert.alert("Error", "No se pudieron guardar las cosechas.");
-      return;
-    }
-
     Alert.alert(
-      "¡Cosechas agregadas!",
-      `Agregaste: ${nombres}`,
+      "¡Cosechas seleccionadas!",
+      `Has seleccionado: ${nombres}`,
       [
         {
           text: "Aceptar",
@@ -103,7 +94,7 @@ export default function AgregarCosecha() {
         </Text>
 
         {COSECHAS.map((cosecha) => {
-          const existente = cosecha.en_huerta;
+          const existente = COSECHAS_EXISTENTES.includes(cosecha.id);
           const seleccionada = nuevas.includes(cosecha.id);
 
           return (

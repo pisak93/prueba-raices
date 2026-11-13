@@ -2,8 +2,6 @@ import { useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import { navegacion } from "../Stylesheet";
 
-
-import iconoComunidad from "../../assets/images/IconoComunidad.png";
 import iconoHuerta from "../../assets/images/IconoHuerta.png";
 import iconoInicio from "../../assets/images/IconoInicio.png";
 import iconoPerfil from "../../assets/images/IconoPerfil.png";
@@ -13,7 +11,7 @@ const opciones = [
   { nombre: "Inicio", icono: iconoInicio, ruta: "/" },
   { nombre: "Mi huerta", icono: iconoHuerta, ruta: "/huerta" },
   { nombre: "Recetas", icono: iconoRecetas, ruta: "/recetas" },
-  { nombre: "Comunidad", icono: iconoComunidad, ruta: "/comunidad"  },
+  { nombre: "Comunidad", icono: "👤", ruta: "/perfil" },
   { nombre: "Perfil", icono: iconoPerfil, ruta: "/perfil" },
 ];
 
@@ -37,6 +35,7 @@ export default function BarraNavegacion({ activo }) {
                 seleccionada && navegacion.fondoActivo,
               ]}
             >
+              {/* Evaluamos si el icono es texto (emoji) o una imagen local */}
               {typeof opcion.icono === "string" ? (
                 <Text style={navegacion.icono}>{opcion.icono}</Text>
               ) : (

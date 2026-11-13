@@ -1,9 +1,6 @@
 import { Image, Pressable, Text, View } from "react-native";
 import { receta } from "../Stylesheet";
 
-const BUCKET_URL =
-  "https://pcsuyiirlhvunumtfpwf.supabase.co/storage/v1/object/public/Recetas_Imagenes/";
-
 function Receta({
   titulo = "Aromática de manzanilla",
   beneficio = "Digestión",
@@ -18,15 +15,12 @@ function Receta({
     estado = "Te falta: " + faltante;
   }
 
-  const uriImagen =
-    imagen && imagen.startsWith("http") ? imagen : `${BUCKET_URL}${imagen}`;
-
   return (
     <Pressable onPress={onPress} style={receta.contenedor}>
-      <View style={[receta.fondoImagen, { overflow: "hidden" }]}>
+      <View style={receta.fondoImagen}>
         {imagen ? (
           <Image
-            source={{ uri: uriImagen }}
+            source={{ uri: imagen }}
             style={receta.imagen}
             resizeMode="cover"
           />
@@ -47,13 +41,13 @@ function Receta({
         <View
           style={[
             receta.etiqueta,
-            Boolean(faltante) && receta.etiquetaFaltante,
+            faltante !== "" && receta.etiquetaFaltante,
           ]}
         >
           <Text
             style={[
               receta.estado,
-              Boolean(faltante) && receta.textoFaltante,
+              faltante !== "" && receta.textoFaltante,
             ]}
           >
             {estado}

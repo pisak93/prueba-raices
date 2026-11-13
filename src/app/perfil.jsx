@@ -12,7 +12,8 @@ export default function Perfil() {
     {
       icono: "✏️",
       texto: "Editar mis datos",
-      accion: () => router.push("/editar-datos"),
+      accion: () =>
+        Alert.alert("Próximamente", "Esta opción estará disponible próximamente."),
     },
     {
       icono: "🌿",
