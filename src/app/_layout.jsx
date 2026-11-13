@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <StacK>
+    <Stack>
       <Stack.Screen name="index" />
       <Stack.Screen name="agregar-cosecha" />
       <Stack.Screen name="aromaticas" />
@@ -14,7 +14,7 @@ export default function RootLayout() {
       <Stack.Screen name="perfil" />
       <Stack.Screen name="recetas" />
       <Stack.Screen name="remedios" />
-    </StacK>
+    </Stack>
   
   )
 }
